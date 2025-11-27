@@ -547,7 +547,7 @@ button {
   }
   
   .tarea-buttons {
-    grid-template-columns: repeat(2, 1fr); /* 2 columnas en tablets */
+    grid-template-columns: repeat(2, 1fr); /* 2 columnas en tablets y móviles */
   }
   
   .tarea-buttons button {
@@ -557,7 +557,13 @@ button {
 
 @media (max-width: 480px) {
   .tarea-buttons {
-    grid-template-columns: 1fr; /* 1 columna en móviles pequeños */
+    grid-template-columns: repeat(2, 1fr); /* 2 columnas en móviles */
+  }
+}
+
+@media (max-width: 320px) {
+  .tarea-buttons {
+    grid-template-columns: 1fr; /* 1 columna en móviles muy pequeños */
   }
 }
 
@@ -591,3 +597,4 @@ body.dark-mode input {
 ::-webkit-scrollbar-thumb:hover {
   background: #e66829;
 }
+
