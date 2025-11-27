@@ -1,0 +1,593 @@
+:root {
+  /* VistaProd Theme - Navy + Orange */
+  --primary-navy: #0a2f5c;
+  --primary-orange: #ff7733;
+  --accent-light: #1a4477;
+  --bg-light: #f5f7fa;
+  --text-light: #2c3e50;
+  --text-white: #ffffff;
+  --border-light: rgba(255, 255, 255, 0.1);
+  
+  /* Dark mode */
+  --bg-dark: #0d1b2a;
+  --text-dark: #e8eaed;
+  --card-dark: #1b2838;
+  
+  /* Task colors */
+  --color-fp: #28a745;
+  --color-p: #ff7733;
+  --color-b: #6c757d;
+  --color-c: #8b4513;
+  --color-t: #a2785b;
+  
+  /* Status colors */
+  --success: #28a745;
+  --danger: #dc3545;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: linear-gradient(135deg, var(--primary-navy) 0%, var(--accent-light) 100%);
+  color: var(--text-white);
+  min-height: 100vh;
+  padding: 0;
+  margin: 0;
+  transition: all 0.3s ease;
+  padding-top: 180px; /* Espacio definitivo para la cabecera fija */
+}
+
+body.dark-mode {
+  background: linear-gradient(135deg, var(--bg-dark) 0%, var(--card-dark) 100%);
+}
+
+body.dark-mode header {
+  background: linear-gradient(135deg, var(--bg-dark) 0%, var(--card-dark) 100%);
+}
+
+/* Header */
+header {
+  display: flex;
+  flex-direction: column; /* Apila los elementos verticalmente */
+  align-items: center; /* Centra los elementos horizontalmente */
+  padding: 20px;
+  width: 100%;
+  
+  /* Estilos para dejarlo fijo de forma definitiva */
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  background: linear-gradient(135deg, var(--primary-navy) 0%, var(--accent-light) 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Creamos un contenedor interno para mantener el centrado del contenido del header */
+header > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+#header-icon {
+  display: block;
+  margin: 10px auto 0 auto; /* Margen inferior eliminado, controlado por el padding del header */
+  max-width: 120px; /* Tamaño de imagen más compacto */
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+}
+
+h2 {
+  text-align: left;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--primary-orange);
+  margin-bottom: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+h3 {
+  color: var(--primary-orange);
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 25px 0 15px 0;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Container */
+.vista-container {
+  display: none;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px 40px 20px;
+}
+
+.vista-container.active {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Theme Toggle */
+#theme-toggle {
+  /* Ya no tiene posición fija, se alinea con flexbox en el header */
+  z-index: 1000;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 3px solid var(--primary-orange);
+  background: rgba(10, 47, 92, 0.95);
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0; /* Evita que el botón se encoja */
+}
+
+#theme-toggle:hover {
+  transform: scale(1.1) rotate(20deg);
+  box-shadow: 0 6px 16px rgba(255, 119, 51, 0.4);
+}
+
+/* Navigation Tabs */
+.modo-toggle,
+.filtros-graficas,
+.hist-tabs,
+.horas-filtros {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 30px;
+  flex-wrap: nowrap; /* Asegura que los botones permanezcan en una línea */
+  justify-content: flex-start; /* Alinea al inicio para un scroll natural */
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  overflow-x: auto; /* Habilita el scroll horizontal si es necesario */
+  -webkit-overflow-scrolling: touch; /* Mejora la experiencia de scroll en iOS */
+}
+
+.modo-toggle button,
+.filtros-graficas button,
+.hist-tabs button,
+.horas-filtros button {
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  padding: 12px 24px;
+  border-radius: 25px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-white);
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.modo-toggle button:hover,
+.filtros-graficas button:hover,
+.hist-tabs button:hover,
+.horas-filtros button:hover {
+  background: rgba(255, 119, 51, 0.3);
+  border-color: var(--primary-orange);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 119, 51, 0.3);
+}
+
+.modo-toggle button.active,
+.filtros-graficas button.active,
+.hist-tabs button.active,
+.horas-filtros button.active {
+  background: var(--primary-orange);
+  border-color: var(--primary-orange);
+  color: white;
+  box-shadow: 0 4px 12px rgba(255, 119, 51, 0.5);
+}
+
+/* Input Groups */
+.input-group {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 15px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.input-group label {
+  font-weight: 600;
+  color: var(--text-white);
+  font-size: 0.95rem;
+}
+
+input[type="text"],
+input[type="number"] {
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-white);
+  font-size: 1rem;
+  flex: 1;
+  min-width: 150px;
+  transition: all 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus {
+  outline: none;
+  border-color: var(--primary-orange);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 3px rgba(255, 119, 51, 0.2);
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Buttons */
+button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+#add-puesto-btn,
+#save-jornada-btn {
+  background: var(--primary-orange);
+  color: white;
+  box-shadow: 0 4px 12px rgba(255, 119, 51, 0.3);
+}
+
+#add-puesto-btn:hover,
+#save-jornada-btn:hover {
+  background: #e66829;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 119, 51, 0.4);
+}
+
+#finalizar-jornada-btn {
+  background: var(--success);
+  color: white;
+  width: 100%;
+  padding: 16px;
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+#finalizar-jornada-btn:hover {
+  background: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+}
+
+#clear-today-btn,
+#reset-colors-btn {
+  background: rgba(220, 53, 69, 0.8);
+  color: white;
+  margin-right: 10px;
+}
+
+#reset-colors-btn {
+  display: none; /* Ocultar botón */
+}
+
+#clear-today-btn:hover,
+#reset-colors-btn:hover {
+  background: #c82333;
+  transform: translateY(-2px);
+}
+
+/* Cards / Puestos */
+.puesto {
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.puesto:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 119, 51, 0.3);
+}
+
+.puesto-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: var(--text-white);
+}
+
+.puesto-header button {
+  background: var(--danger);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.puesto-header button:hover {
+  background: #c82333;
+  transform: scale(1.1);
+}
+
+/* Task Buttons */
+.tarea-buttons {
+  display: grid; /* Cambiado a Grid para un control de 2D */
+  grid-template-columns: repeat(3, 1fr); /* 3 columnas de igual tamaño */
+  gap: 10px;
+}
+
+.tarea-buttons button {
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  /* flex: 1 y min-width ya no son necesarios con Grid */
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.tarea-buttons button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.tarea-buttons button.F-P {
+  background: linear-gradient(135deg, var(--color-fp) 0%, #20924b 100%);
+}
+
+.tarea-buttons button.P {
+  background: linear-gradient(135deg, var(--color-p) 0%, #e66829 100%);
+}
+
+.tarea-buttons button.B {
+  background: linear-gradient(135deg, var(--color-b) 0%, #5a6268 100%);
+}
+
+.tarea-buttons button.C {
+  background: linear-gradient(135deg, var(--color-c) 0%, #6f3610 100%);
+}
+
+.tarea-buttons button.T {
+  background: linear-gradient(135deg, var(--color-t) 0%, #8b6548 100%);
+}
+
+/* Log Entries */
+#log-container,
+#dashboard-container {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.log-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-orange);
+  transition: all 0.3s ease;
+}
+
+.log-entry:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(5px);
+}
+
+.log-entry button {
+  background: var(--danger);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.log-entry button:hover {
+  background: #c82333;
+  transform: scale(1.05);
+}
+
+/* Tables */
+.tabla-resumen {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.tabla-resumen th {
+  background: var(--primary-orange);
+  color: white;
+  padding: 15px;
+  text-align: center;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.9rem;
+}
+
+.tabla-resumen td {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.03);
+  transition: background 0.3s ease;
+}
+
+.tabla-resumen tr:hover td {
+  background: rgba(255, 119, 51, 0.1);
+}
+
+/* Popup */
+.popup {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--success);
+  color: white;
+  padding: 16px 32px;
+  border-radius: 50px;
+  z-index: 1001;
+  visibility: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.popup.show {
+  visibility: visible;
+  opacity: 1;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateX(-50%) translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Utility Classes */
+.mb-3 {
+  margin-bottom: 20px;
+}
+
+.mt-4 {
+  margin-top: 30px;
+}
+
+.danger {
+  background-color: var(--danger);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  body {
+    padding-top: 150px; /* Reducido para móvil */
+  }
+
+  header {
+    padding: 15px;
+  }
+
+  h2 {
+    font-size: 1.5rem; /* Título más pequeño en móvil */
+  }
+
+  #theme-toggle {
+    width: 40px; /* Botón más pequeño en móvil */
+    height: 40px;
+    font-size: 20px;
+  }
+  
+  h3 {
+    font-size: 1.5rem;
+  }
+
+  /* Rediseño de botones para que quepan en horizontal en móvil */
+  .modo-toggle button,
+  .filtros-graficas button,
+  .hist-tabs button,
+  .horas-filtros button {
+    padding: 8px 16px; /* Padding reducido */
+    font-size: 0.8rem; /* Fuente más pequeña */
+  }
+  
+  .tarea-buttons {
+    grid-template-columns: repeat(2, 1fr); /* 2 columnas en tablets */
+  }
+  
+  .tarea-buttons button {
+    /* Eliminamos la regla de width: 100% para que el grid funcione */
+  }
+}
+
+@media (max-width: 480px) {
+  .tarea-buttons {
+    grid-template-columns: 1fr; /* 1 columna en móviles pequeños */
+  }
+}
+
+/* Dark mode adjustments */
+body.dark-mode .puesto,
+body.dark-mode #log-container,
+body.dark-mode #dashboard-container {
+  background: rgba(27, 40, 56, 0.6);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+body.dark-mode input {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-orange);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #e66829;
+}

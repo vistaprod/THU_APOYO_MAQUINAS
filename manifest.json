@@ -1,0 +1,23 @@
+{
+  "name": "THUprod",
+  "short_name": "THUprod", 
+  "description": "Aplicación mejorada para registrar tareas por puestos",
+  "start_url": "./index.html?v=3",
+  "display": "standalone",
+  "theme_color": "#343a40",
+  "background_color": "#f8f9fa",
+  "orientation": "portrait",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "ICON_APP_APOYO.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "ICON_APP_APOYO.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
