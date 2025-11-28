@@ -19,7 +19,7 @@ function getLogsForDateRange(start, end) {
 
   for (const dateStr of logIndex) {
     const logDate = parseDdMmYyyy(dateStr);
-    
+
     if (logDate >= startDate && logDate <= endDate) {
       const dayLogsData = loadFromStorage(`log-${dateStr}`, []);
       // Normalizar: puede ser array o {jornadaMinutos, registros}
@@ -68,7 +68,7 @@ export function getColorPuesto(puesto) {
 export function renderPuestos() {
   const container = document.getElementById('puestos-container');
   if (!container) return;
-  
+
   container.innerHTML = STATE.puestos.map(p => `
     <div class="puesto" style="border-left: 5px solid ${getColorPuesto(p)}">
       <div class="puesto-header">
@@ -76,9 +76,9 @@ export function renderPuestos() {
         <button class="quitar-puesto-btn" data-puesto="${p}" aria-label="Quitar puesto ${p}">X</button>
       </div>
       <div class="tarea-buttons">
-        ${CONFIG.ordenTareas.map(t => 
-          `<button class="add-tarea-btn ${CONFIG.abrev[t]}" data-puesto="${p}" data-tarea="${t}" aria-label="Añadir ${t}">${CONFIG.abrev[t]}</button>`
-        ).join('')}
+        ${CONFIG.ordenTareas.map(t =>
+    `<button class="add-tarea-btn ${CONFIG.abrev[t]}" data-puesto="${p}" data-tarea="${t}" aria-label="Añadir ${t}">${CONFIG.abrev[t]}</button>`
+  ).join('')}
       </div>
     </div>
   `).join('');
@@ -87,7 +87,7 @@ export function renderPuestos() {
 export function renderDashboard() {
   const container = document.getElementById('dashboard-container');
   if (!container) return;
-  
+
   const logHoy = STATE.log;
   const contador = logHoy.reduce((acc, l) => {
     acc[l.puesto] = acc[l.puesto] || { total: 0, ...CONFIG.ordenTareas.reduce((a, t) => ({ ...a, [t]: 0 }), {}) };
@@ -101,23 +101,23 @@ export function renderDashboard() {
     container.innerHTML = '<p>No hay registros para hoy.</p>';
     return;
   }
-  
+
   let html = '<table class="tabla-resumen"><thead><tr><th>Puesto</th>' +
     CONFIG.ordenTareas.map(t => `<th>${CONFIG.abrev[t]}</th>`).join('') + '<th>Total</th></tr></thead><tbody>';
-  
+
   puestos.forEach(p => {
     html += `<tr><td><span style="color:${getColorPuesto(p)}; font-weight:bold;">Puesto ${p}</span></td>` +
       CONFIG.ordenTareas.map(t => `<td>${contador[p][t] || 0}</td>`).join('') +
       `<td>${contador[p].total}</td></tr>`;
   });
-  
+
   container.innerHTML = html + '</tbody></table>';
 }
 
 export function renderLog() {
   const container = document.getElementById('log-container');
   if (!container) return;
-  
+
   const logHoy = STATE.log.slice(0, 50);
   container.innerHTML = logHoy.map(l => `
     <div class="log-entry">
@@ -147,44 +147,21 @@ export function toggleTheme() {
 
 export function cambiarVista(vista) {
   STATE.vistaActual = vista;
-  
+
   document.querySelectorAll('.vista-container').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.modo-toggle button').forEach(b => b.classList.remove('active'));
-  
+
   const vistaEl = document.getElementById(`vista-${vista}`);
   if (vistaEl) vistaEl.classList.add('active');
-  
+
   const boton = document.querySelector(`[data-vista="${vista}"]`);
   if (boton) boton.classList.add('active');
-  
+
   if (vista === 'historial') {
-    cambiarSubVistaHistorial('completo');
-  }
-  if (vista === 'horas') {
-    renderDistribucionHoras('hoy');
+    renderHistorialCompleto();
   }
   if (vista === 'graficas') {
     renderGraficas('daily');
-  }
-}
-
-export function cambiarSubVistaHistorial(subVista) {
-  const completo = document.getElementById('hist-completo');
-  const compact = document.getElementById('hist-compact');
-  
-  if (completo) completo.style.display = 'none';
-  if (compact) compact.style.display = 'none';
-  
-  document.querySelectorAll('.hist-tabs button').forEach(b => b.classList.remove('active'));
-  
-  const subVistaEl = document.getElementById(`hist-${subVista}`);
-  if (subVistaEl) subVistaEl.style.display = 'block';
-  
-  const botonSubVista = document.querySelector(`.hist-tabs button[data-sub="${subVista}"]`);
-  if (botonSubVista) botonSubVista.classList.add('active');
-  
-  if (subVista === 'completo') {
-    renderHistorialCompleto();
   }
 }
 
@@ -215,7 +192,7 @@ export function renderHistorialCompleto() {
 
     const fecha = parseDdMmYyyy(f);
     const titulo = fecha.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
-    
+
     return `
       <div class="puesto">
         <div class="puesto-header">
@@ -247,7 +224,7 @@ function getDailyLogsWithMetadata(start, end) {
     const logDate = parseDdMmYyyy(dateStr);
     if (logDate >= startDate && logDate <= endDate) {
       const dayLogData = loadFromStorage(`log-${dateStr}`, []);
-      
+
       // Compatibilidad con formato antiguo y nuevo
       if (Array.isArray(dayLogData)) { // Formato antiguo
         dailyLogs.push({
@@ -271,13 +248,13 @@ export function renderDistribucionHoras(rango) {
   const cont = document.getElementById('horas-container');
   if (!cont) return;
   cont.innerHTML = '<p>Cargando datos...</p>';
-  
+
   const hoy = new Date();
   let start, end;
 
   switch (rango) {
     case 'hoy':
-      start = end = STATE.jornadaActual;
+      start = end = yyyyMmDd(hoy);
       break;
     case 'ayer':
       const ayer = new Date(hoy);
@@ -357,6 +334,50 @@ export function renderDistribucionHoras(rango) {
     });
   html += '</tbody></table>';
 
+  // --- NUEVO: Desglose Diario ---
+  if (dailyLogs.length > 1) { // Solo mostrar si hay más de un día o si el usuario quiere ver detalle
+    html += '<h3 style="margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px;">Desglose Diario</h3>';
+
+    // Ordenar por fecha descendente (más reciente primero)
+    dailyLogs.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    dailyLogs.forEach(day => {
+      const fechaObj = parseDdMmYyyy(day.date);
+      const fechaTitulo = fechaObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+      // Calcular esfuerzo para este día específico
+      const jornadaMinutosDelDia = day.date === STATE.jornadaActual ? STATE.jornadaMinutos : day.jornadaMinutos;
+      const esfuerzoDia = day.registros.reduce((acc, l) => {
+        acc[l.puesto] = (acc[l.puesto] || 0) + (CONFIG.tiempos[l.tarea] || 0);
+        return acc;
+      }, {});
+
+      const totalEsfuerzoDia = Object.values(esfuerzoDia).reduce((s, v) => s + v, 0);
+
+      if (totalEsfuerzoDia === 0) return; // Saltar días sin esfuerzo registrado
+
+      html += `<h4 style="margin-top: 15px; margin-bottom: 5px; text-transform: capitalize;">${fechaTitulo}</h4>`;
+      html += '<table class="tabla-resumen" style="margin-bottom: 15px; font-size: 0.9em;"><thead><tr><th>Puesto</th><th>Tiempo</th><th>Decimal</th></tr></thead><tbody>';
+
+      const esfuerzoPorPuestoDia = {};
+      Object.keys(esfuerzoDia).forEach(puesto => {
+        const minutosDiaPuesto = (esfuerzoDia[puesto] / totalEsfuerzoDia) * jornadaMinutosDelDia;
+        esfuerzoPorPuestoDia[puesto] = minutosDiaPuesto;
+      });
+
+      Object.keys(esfuerzoPorPuestoDia)
+        .sort((a, b) => esfuerzoPorPuestoDia[b] - esfuerzoPorPuestoDia[a])
+        .forEach(p => {
+          const minutos = esfuerzoPorPuestoDia[p];
+          const horas = minutos / 60;
+          const h = Math.floor(horas);
+          const m = Math.round(minutos % 60);
+          html += `<tr><td><span style="color:${getColorPuesto(p)};">P${p}</span></td><td>${h}h ${m}min</td><td>${horas.toFixed(2)}</td></tr>`;
+        });
+
+      html += '</tbody></table>';
+    });
+  }
   cont.innerHTML = html;
 }
 
@@ -365,35 +386,35 @@ export function renderGraficas(periodo) {
     STATE.chartInstance.destroy();
     STATE.chartInstance = null;
   }
-  
+
   let fechaInicio = new Date();
   if (periodo === 'weekly') fechaInicio.setDate(fechaInicio.getDate() - 6);
   if (periodo === 'biweekly') fechaInicio.setDate(fechaInicio.getDate() - 14);
   if (periodo === 'monthly') fechaInicio.setDate(fechaInicio.getDate() - 29);
-  
+
   const fechaInicioStr = yyyyMmDd(fechaInicio);
   const hoyStr = yyyyMmDd(new Date());
-  
+
   const logParaGraficar = getLogsForDateRange(fechaInicioStr, hoyStr);
-  
+
   const contador = logParaGraficar.reduce((acc, l) => {
     acc[l.puesto] = acc[l.puesto] || { ...CONFIG.ordenTareas.reduce((a, t) => ({ ...a, [t]: 0 }), {}), total: 0 };
     acc[l.puesto][l.tarea]++;
     acc[l.puesto].total++;
     return acc;
   }, {});
-  
+
   const puestos = Object.keys(contador).sort((a, b) => contador[b].total - contador[a].total);
-  
+
   const datasets = CONFIG.ordenTareas.map(t => ({
     label: CONFIG.abrev[t],
     data: puestos.map(p => contador[p][t]),
     backgroundColor: CONFIG.coloresTareas[t],
   }));
-  
+
   const ctx = document.getElementById('grafico-puestos');
   if (!ctx) return;
-  
+
   STATE.chartInstance = new Chart(ctx.getContext('2d'), {
     type: 'bar',
     data: { labels: puestos.map(p => `Puesto ${p}`), datasets },
