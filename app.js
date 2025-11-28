@@ -5,7 +5,7 @@ import { loadFromStorage, saveToStorage, migrateHistorial } from './storage.js';
 import { getJornadaLogica, showPopup, yyyyMmDd, parseDdMmYyyy } from './utils.js';
 
 import { STATE } from './state.js';
-import { renderAll, toggleTheme, cambiarVista, cambiarSubVistaHistorial, renderDistribucionHoras, renderGraficas, renderDashboard, renderLog } from './ui.js';
+import { renderAll, toggleTheme, cambiarVista, renderDistribucionHoras, renderGraficas, renderDashboard, renderLog } from './ui.js';
 
 // GOOGLE SHEETS CONFIG
 const SPREADSHEET_ID = '1iyXfcpmvPjZq3JQtJKXeS-dWiWqJgDYFMquF7axS_gs';
@@ -18,7 +18,7 @@ function validarPuesto(numStr) {
     showPopup('⚠️ Ingresa un número de puesto', 'error');
     return false;
   }
-  
+
   const numero = parseInt(numStr.trim());
   console.log('DEBUG: numStr.trim() =', numStr.trim());
   console.log('DEBUG: parseInt(numStr.trim()) =', numero);
@@ -27,12 +27,12 @@ function validarPuesto(numStr) {
     showPopup('⚠️ Solo números permitidos', 'error');
     return false;
   }
-  
+
   if (STATE.puestos.includes(numero.toString())) { // Compare as string since STATE.puestos stores strings
     showPopup('⚠️ Puesto ya existe', 'error');
     return false;
   }
-  
+
   return true;
 }
 
@@ -43,13 +43,13 @@ function validarPuesto(numStr) {
 function addPuesto() {
   const input = document.getElementById('nuevo-puesto-input');
   if (!input) return;
-  
+
   const num = input.value;
   if (!validarPuesto(num)) return;
-  
+
   const nuevosPuestos = [...STATE.puestos, num.trim()];
   nuevosPuestos.sort((a, b) => parseInt(a) - parseInt(b));
-  
+
   if (saveToStorage('puestos', nuevosPuestos)) {
     STATE.puestos = nuevosPuestos; // Actualizar solo si el guardado fue exitoso
     renderAll();
@@ -67,9 +67,9 @@ function addTarea(puesto, tarea) {
     fecha: STATE.jornadaActual,
     hora: now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
   };
-  
+
   const nuevoLog = [newLogEntry, ...STATE.log];
-  
+
   if (saveToStorage(`log-${STATE.jornadaActual}`, nuevoLog)) {
     STATE.log = nuevoLog; // Actualizar solo después de guardar
     renderDashboard();
@@ -80,9 +80,9 @@ function addTarea(puesto, tarea) {
 
 function quitarPuesto(puesto) {
   if (!confirm(`¿Seguro que quieres quitar el puesto ${puesto}?`)) return;
-  
+
   const nuevosPuestos = STATE.puestos.filter(p => p !== puesto);
-  
+
   if (saveToStorage('puestos', nuevosPuestos)) {
     STATE.puestos = nuevosPuestos; // Actualizar solo después de guardar
     renderAll();
@@ -119,7 +119,7 @@ function eliminarLog(id) {
     const key = `log-${dateStr}`;
     let logDia = loadFromStorage(key, []);
     const logDiaInicial = logDia.length;
-    
+
     logDia = logDia.filter(l => l.id !== logId);
 
     if (logDiaInicial > logDia.length) {
@@ -141,7 +141,7 @@ function eliminarLog(id) {
 
 function clearToday() {
   if (!confirm('¿Seguro que quieres borrar todos los registros de hoy?')) return;
-  
+
   // Intentar guardar un log vacío.
   if (saveToStorage(`log-${STATE.jornadaActual}`, [])) {
     STATE.log = []; // Actualizar estado solo si el guardado fue exitoso
@@ -152,7 +152,7 @@ function clearToday() {
 
 function resetColors() {
   if (!confirm('¿Resetear todos los colores?')) return;
-  
+
   if (saveToStorage('colorPuestos', {})) {
     STATE.colorPuestos = {}; // Actualizar estado solo si el guardado fue exitoso
     renderAll();
@@ -164,23 +164,23 @@ function resetColors() {
 
 function finalizarJornada() {
   console.log('=== FINALIZANDO JORNADA ===');
-  
+
   if (!confirm('¿Finalizar jornada y guardar en historial?')) return;
-  
+
   const logHoy = STATE.log.filter(l => l.fecha === STATE.jornadaActual);
-  
+
   if (logHoy.length === 0) {
     showPopup('⚠️ No hay registros para finalizar', 'error');
     return;
   }
-  
+
   const logDelDia = {
     jornadaMinutos: STATE.jornadaMinutos,
     registros: logHoy
   };
-  
+
   if (!saveToStorage(`log-${STATE.jornadaActual}`, logDelDia)) return;
-  
+
   // --- NUEVO: Actualizar el índice de logs ---
   const logIndexJSON = localStorage.getItem('log_index');
   let logIndex = logIndexJSON ? JSON.parse(logIndexJSON) : [];
@@ -191,7 +191,7 @@ function finalizarJornada() {
   }
 
   STATE.log = [];
-  
+
   const today = new Date();
   today.setDate(today.getDate() + 1);
   STATE.jornadaActual = yyyyMmDd(today);
@@ -200,7 +200,7 @@ function finalizarJornada() {
   // Export to CSV
   const filename = `registros_jornada_${logHoy[0].fecha}.csv`; // Use the date of the finalized log
   exportToCsv(logHoy, filename);
-  
+
   renderAll();
   showPopup('✓ Jornada finalizada correctamente');
 }
@@ -231,7 +231,7 @@ function handleUpdateJornadaMinutos() {
   if (STATE.vistaActual === 'horas') {
     renderDistribucionHoras(document.querySelector('.horas-filtros button.active')?.dataset.rango || 'hoy');
   }
-  
+
   showPopup('✓ Minutos de jornada actualizados.');
 }
 
@@ -267,7 +267,7 @@ function exportToCsv(logToExport, filename = 'registros_jornada.csv') {
 
   // === GENERAR CSV ===
   let csvContent = `JORNADA: ${logToExport[0].fecha}\n\n`;
-  
+
   // Tabla 1
   csvContent += 'DISTRIBUCIÓN DE TIEMPOS\n';
   csvContent += 'Puesto,Tiempo,Decimal\n';
@@ -280,17 +280,17 @@ function exportToCsv(logToExport, filename = 'registros_jornada.csv') {
       const m = Math.round(minutos % 60);
       csvContent += `P${p},${h}h ${m}min,${horas.toFixed(2)}\n`;
     });
-  
+
   csvContent += '\n'; // Separador
-  
+
   // Tabla 2
   csvContent += 'RESUMEN DIARIO\n';
   csvContent += 'Puesto,' + CONFIG.ordenTareas.map(t => CONFIG.abrev[t]).join(',') + ',Total\n';
   Object.keys(contador)
     .sort((a, b) => contador[b].total - contador[a].total)
     .forEach(p => {
-      csvContent += `Puesto ${p},` + 
-        CONFIG.ordenTareas.map(t => contador[p][t] || 0).join(',') + 
+      csvContent += `Puesto ${p},` +
+        CONFIG.ordenTareas.map(t => contador[p][t] || 0).join(',') +
         `,${contador[p].total}\n`;
     });
 
@@ -328,15 +328,15 @@ async function enviarAGoogleSheets(fecha, tiempos, resumen) {
   console.log('Fecha:', fecha);
   console.log('Tiempos:', tiempos);
   console.log('Resumen:', resumen);
-  
+
   try {
     // Preparar datos para Sheets
     const values = [];
-    
+
     // Encabezado de jornada
     values.push([`JORNADA: ${fecha}`]);
     values.push([]);
-    
+
     // Tabla 1: Tiempos
     values.push(['DISTRIBUCIÓN DE TIEMPOS']);
     values.push(['Puesto', 'Tiempo', 'Decimal']);
@@ -349,9 +349,9 @@ async function enviarAGoogleSheets(fecha, tiempos, resumen) {
         const m = Math.round(minutos % 60);
         values.push([`P${p}`, `${h}h ${m}min`, parseFloat(horas.toFixed(2))]);
       });
-    
+
     values.push([]);
-    
+
     // Tabla 2: Resumen
     values.push(['RESUMEN DIARIO']);
     values.push(['Puesto', ...CONFIG.ordenTareas.map(t => CONFIG.abrev[t]), 'Total']);
@@ -364,7 +364,7 @@ async function enviarAGoogleSheets(fecha, tiempos, resumen) {
           resumen[p].total
         ]);
       });
-    
+
     values.push([]);
     values.push([]);
 
@@ -381,7 +381,7 @@ async function enviarAGoogleSheets(fecha, tiempos, resumen) {
       }
       return newRow;
     });
-    
+
     console.log('Datos normalizados:', normalizedValues);
 
     // Enviar a Google Apps Script
@@ -395,7 +395,7 @@ async function enviarAGoogleSheets(fecha, tiempos, resumen) {
     // Con mode: 'no-cors' no podemos leer la respuesta, pero si no hay error, asumimos éxito
     console.log('Petición enviada a Apps Script');
     showPopup('✓ Datos enviados a Google Sheets');
-    
+
   } catch (error) {
     console.error('Error enviando a Google Sheets:', error);
     showPopup('⚠️ Error al enviar a Sheets. CSV descargado.', 'error');
@@ -406,29 +406,29 @@ async function enviarAGoogleSheets(fecha, tiempos, resumen) {
 function setupListeners() {
   const themeBtn = document.getElementById('theme-toggle');
   if (themeBtn) themeBtn.onclick = toggleTheme;
-  
+
   const addBtn = document.getElementById('add-puesto-btn');
   if (addBtn) addBtn.onclick = addPuesto;
-  
+
   const input = document.getElementById('nuevo-puesto-input');
   if (input) {
     input.onkeypress = (e) => {
       if (e.key === 'Enter') addPuesto();
     };
   }
-  
+
   const clearBtn = document.getElementById('clear-today-btn');
   if (clearBtn) clearBtn.onclick = clearToday;
-  
+
   const resetBtn = document.getElementById('reset-colors-btn');
   if (resetBtn) resetBtn.onclick = resetColors;
-  
+
   const finalizarBtn = document.getElementById('finalizar-jornada-btn');
   if (finalizarBtn) finalizarBtn.onclick = finalizarJornada;
-  
+
   const saveJornadaBtn = document.getElementById('save-jornada-btn');
   if (saveJornadaBtn) saveJornadaBtn.onclick = handleUpdateJornadaMinutos;
-  
+
   const modoToggle = document.querySelector('.modo-toggle');
   if (modoToggle) {
     modoToggle.onclick = (e) => {
@@ -438,15 +438,8 @@ function setupListeners() {
     };
   }
 
-  const histTabs = document.querySelector('.hist-tabs');
-  if (histTabs) {
-    histTabs.onclick = (e) => {
-      if (e.target.tagName === 'BUTTON' && e.target.dataset.sub) {
-        cambiarSubVistaHistorial(e.target.dataset.sub);
-      }
-    };
-  }
-  
+
+
   const horasFiltros = document.querySelector('.horas-filtros');
   if (horasFiltros) {
     horasFiltros.onclick = (e) => {
@@ -457,7 +450,7 @@ function setupListeners() {
       }
     };
   }
-  
+
   const graficasFiltros = document.querySelector('.filtros-graficas');
   if (graficasFiltros) {
     graficasFiltros.onclick = (e) => {
@@ -468,18 +461,18 @@ function setupListeners() {
       }
     };
   }
-  
+
   document.body.onclick = (e) => {
     const target = e.target;
-    
+
     if (target.classList.contains('add-tarea-btn')) {
       addTarea(target.dataset.puesto, target.dataset.tarea);
     }
-    
+
     if (target.classList.contains('quitar-puesto-btn')) {
       quitarPuesto(target.dataset.puesto);
     }
-    
+
     if (target.classList.contains('eliminar-log-btn')) {
       eliminarLog(target.dataset.id);
     }
@@ -502,18 +495,18 @@ function init() {
         .filter(key => key.startsWith('log-'))
         .map(key => key.replace('log-', ''))
         .sort((a, b) => new Date(b) - new Date(a)); // Ordenar más recientes primero
-      
+
       localStorage.setItem('log_index', JSON.stringify(logIndex));
       console.log('Índice de logs creado.', logIndex);
     }
-    
+
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark-mode') {
       document.body.classList.add('dark-mode');
       const btn = document.getElementById('theme-toggle');
       if (btn) btn.textContent = '☀️';
     }
-    
+
     const jornadaInput = document.getElementById('jornada-minutos-input');
     if (jornadaInput) {
       jornadaInput.value = STATE.jornadaMinutos;
@@ -524,10 +517,10 @@ function init() {
         display.textContent = `(${h}h ${m}m)`;
       }
     }
-    
+
     renderAll();
     setupListeners();
-    
+
 
 
     console.log('=== APP INITIALIZED ===');
