@@ -301,6 +301,18 @@ export function renderDistribucionHoras(rango) {
 
   const dailyLogs = getDailyLogsWithMetadata(start, end);
 
+  // --- FIX: Include current active day if it falls within the range ---
+  if (STATE.jornadaActual >= start && STATE.jornadaActual <= end) {
+    const alreadyIncluded = dailyLogs.some(d => d.date === STATE.jornadaActual);
+    if (!alreadyIncluded && STATE.log && STATE.log.length > 0) {
+      dailyLogs.push({
+        date: STATE.jornadaActual,
+        jornadaMinutos: STATE.jornadaMinutos,
+        registros: STATE.log
+      });
+    }
+  }
+
   if (dailyLogs.length === 0) {
     cont.innerHTML = '<p>No hay datos para este rango.</p>';
     return;
